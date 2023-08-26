@@ -12,12 +12,12 @@ const refs = {
     catInfo: document.querySelector(".cat-info"),
 }
 refs.loadingText.classList.add("hidden");
-
+refs.catInfo.classList.add("hidden");
 
 
 fetchBreeds()
   .then(data => data.map(breed => ({ id: breed.reference_image_id, name: breed.name })))
-    .then(breeds => {
+  .then(breeds => {      
       breeds.forEach(breed => {
         const option = document.createElement('option');
         option.value = breed.id;
@@ -28,7 +28,7 @@ fetchBreeds()
       select: refs.breedSelect,
     });
     }).catch(err => {
-        refs.catInfo.innerHTML = '';
+      refs.catInfo.innerHTML = '';
       Notify.failure(
         'Oops! Something went wrong! Try choose another breed!'
       );
@@ -42,8 +42,12 @@ function onSelectCat(e) {
  
   const breedId = e.target.value;
   refs.catInfo.innerHTML = '';
-    refs.loadingText.classList.add("visible");
-    refs.loadingText.classList.remove("hidden");
+  refs.catInfo.classList.remove("visible");
+  refs.catInfo.classList.add("hidden");
+
+
+  refs.loadingText.classList.add("visible");
+  refs.loadingText.classList.remove("hidden");
 
   fetchCatByBreed(breedId)
     .then(data => {
@@ -53,13 +57,11 @@ function onSelectCat(e) {
         name: breed.name,
         description: breed.description,
         temperament: breed.temperament,
-        url: data.url,
+        url:
+          data.url,
       };
-      setTimeout(() => {
-        markUpCats(cat);
-        refs.loadingText.classList.add("hidden");
-        refs.loadingText.classList.remove("visible");
-      }, 0);
+      markUpCats(cat);
+      
     })
     .catch(err => {
       Notify.failure(
@@ -68,7 +70,14 @@ function onSelectCat(e) {
     refs.loader.classList.add('visually-hidden');
     refs.select.classList.remove('visually-hidden');
     console.log(err);
-    });
+    }).finally( () => {
+        setTimeout(() => {    
+        refs.loadingText.classList.add("hidden");
+        refs.loadingText.classList.remove("visible");
+        refs.catInfo.classList.add("visible");
+        refs.catInfo.classList.remove("hidden"); 
+      }, 500);
+    })
 };
 
 function markUpCats(cat) {
